@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Pygame / Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# C++ build files
+build/
+cmake-build-*/
+out/
+
+# Compiled binaries
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+*.o
+*.obj
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+Makefile
+
+# IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Python environment / local config
+.env
+
+# Generated data
+*.pkl
+*.pickle
