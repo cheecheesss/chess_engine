@@ -22,79 +22,56 @@
 # закончить и оптимизировать все эти планы = закончить гуи и начать учить спп, даю себе примерно 4 дня
 
 import pygame 
-from pygame import transform, image
-from ui.colors import GRAY, WHITE, BLACK
+from ui.config import DISPLAY_SIZE, CELL_SIZE, clock, FPS, GRAY
+from ui.BoardView import BoardView
+from ui.Board import chess_board
+from ui.sprites import load_pieces
 
 pygame.init()
 
-
-# константы и переменные которые надо куда то опеределить 
-# (например в файл конфиг которого у меня нет потому что я чмооооо)
-
 # create screen 
-screen = pygame.display.set_mode((600, 400))
+screen = pygame.display.set_mode(DISPLAY_SIZE)
 screen.fill(GRAY)
 pygame.display.set_caption("Chess engine")
 
-# for fps limit
-clock = pygame.time.Clock() 
-FPS = 30
+Board = BoardView(10, 10, CELL_SIZE, screen)
+pieces = load_pieces(CELL_SIZE)
 
-def start_gui():
-    while True: 
+
+def main():
+    '''main func for create window 
+    and update him'''
+    start = True
+    while start: 
     # infinity loop
         for event in pygame.event.get():
         # event handler
             if event.type == pygame.QUIT:
-                # closing with a cross
-                pygame.quit() 
+                # closing with a cross 
+                start = False
+                break
+
+
+
+        # GUI logic
+        Board.draw_board()
+        Board.draw_pieces(chess_board, pieces)
+
+
 
         pygame.display.flip() # GUI update
         clock.tick(FPS) # fps limiter 
 
-if __name__ == '__main__':
-    start_gui()
+    pygame.quit()
+
+
+if __name__ == '__main__':  
+    main()
+
 
    
 """
-class board: 
-    screen, color, (x, y, width, height)
-    def __init__(self): 
-    так же нужно отрисовать фигуры, текст и тд в ините, но пока только с доской работаю
 
-def create_board(screen: pygame.surface.Surface, 
-                CELL_SIZE: int = 40, 
-                x0: int = 40, y0: int = 40):
-    '''create chess board (dont have letter and pieces)''' 
-    pos = 0
-
-    chess_desk = [
-        'b_r', 'b_n', 'b_b', 'b_q', 'b_k', 'b_b', 'b_n', 'b_r',
-        'b_p', 'b_p', 'b_p', 'b_p', 'b_p', 'b_p', 'b_p', 'b_p',
-        '',    '',    '',    '',    '',    '',    '',    '',
-        '',    '',    '',    '',    '',    '',    '',    '',
-        '',    '',    '',    '',    '',    '',    '',    '',
-        '',    '',    '',    '',    '',    '',    '',    '',
-        'w_p', 'w_p', 'w_p', 'w_p', 'w_p', 'w_p', 'w_p', 'w_p',
-        'w_r', 'w_n', 'w_b', 'w_q', 'w_k', 'w_b', 'w_n', 'w_r',
-    ]
-
-    # 'b_b': transform.scale(image.load('gui/assets/pieces/b_bishop.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-    pieces_sprite = {
-        'b_b': transform.scale(image.load('gui/assets/pieces/b_bishop.png').convert_alpha(),(CELL_SIZE, CELL_SIZE)),
-        'b_k': transform.scale(image.load('gui/assets/pieces/b_king.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-        'b_n': transform.scale(image.load('gui/assets/pieces/b_knight.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-        'b_p': transform.scale(image.load('gui/assets/pieces/b_pawn.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-        'b_q': transform.scale(image.load('gui/assets/pieces/b_queen.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-        'b_r': transform.scale(image.load('gui/assets/pieces/b_rook.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),       
-        'w_b': transform.scale(image.load('gui/assets/pieces/w_bishop.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-        'w_k': transform.scale(image.load('gui/assets/pieces/w_king.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-        'w_n': transform.scale(image.load('gui/assets/pieces/w_knight.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-        'w_p': transform.scale(image.load('gui/assets/pieces/w_pawn.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-        'w_q': transform.scale(image.load('gui/assets/pieces/w_queen.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-        'w_r': transform.scale(image.load('gui/assets/pieces/w_rook.png').convert_alpha(), (CELL_SIZE, CELL_SIZE)),
-    }
-    
     for row in range(8):
         for col in range(8):
             color = WHITE if (row + col) % 2 == 0 else BLACK
@@ -106,5 +83,4 @@ def create_board(screen: pygame.surface.Surface,
                 sprite = pieces_sprite[chess_desk[pos-1]] 
                 screen.blit(sprite, (x, y))
 
-create_board(screen, 40, 10, 10)
 """
