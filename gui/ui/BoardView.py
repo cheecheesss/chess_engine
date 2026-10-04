@@ -1,7 +1,7 @@
 '''class BoardView for GUI'''
 
 import pygame
-from ui.config import BLACK, WHITE
+from ui.config import BLUE, WHITE
 
 
 class BoardView: 
@@ -16,7 +16,7 @@ class BoardView:
     def draw_board(self): 
         for row in range(8):
             for col in range(8): 
-                color = WHITE if (row + col) % 2 == 0 else BLACK
+                color = WHITE if (row + col) % 2 == 0 else BLUE
                 
                 x = self.x0 + col * self.cell_size
                 y = self.y0 + row * self.cell_size
@@ -26,11 +26,21 @@ class BoardView:
                     (x, y, self.cell_size, self.cell_size)
                 )
 
-    def draw_pieces(self, board, pieces): 
+    def draw_pieces(self, board, pieces):
         for index, piece in enumerate(board):
-            if piece == None:
+            if piece is None:
                 continue
+
             row, col = divmod(index, 8)
-            x = self.x0 + col * self.cell_size
-            y = self.y0 + row * self.cell_size
-            self.screen.blit(pieces[piece], (x, y))
+
+            # top left corner
+            cell_x = self.x0 + col * self.cell_size
+            cell_y = self.y0 + row * self.cell_size
+
+            sprite = pieces[piece]
+
+            # сentering the sprite relative to the cell
+            x = cell_x + (self.cell_size - sprite.get_width()) // 2
+            y = cell_y + (self.cell_size - sprite.get_height()) // 2
+
+            self.screen.blit(sprite, (x, y))
