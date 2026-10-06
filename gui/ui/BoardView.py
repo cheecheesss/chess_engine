@@ -12,7 +12,6 @@ class BoardView:
         self.cell_size = cell_size
         self.screen = screen
 
-
     def draw_board(self): 
         for row in range(8):
             for col in range(8): 
@@ -27,12 +26,16 @@ class BoardView:
                 )
 
     def cell_at(self, position):
+        '''Return the index of the cell at the given position, 
+        or None if outside the board. (cursor position on board)'''
         x, y = position
         col = (x - self.x0) // self.cell_size
         row = (y - self.y0) // self.cell_size
 
         if 0 <= row < 8 and 0 <= col < 8:
+            # if on the board:
             return row * 8 + col
+        # else:
         return None
 
     def draw_pieces(self, board, pieces, hidden_index=None):
@@ -56,6 +59,7 @@ class BoardView:
 
     def draw_dragged_piece(self, piece, pieces, position):
         if piece is None:
+            # break func 
             return
 
         sprite = pieces[piece]

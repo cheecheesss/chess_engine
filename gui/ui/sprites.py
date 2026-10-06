@@ -30,19 +30,18 @@ def load_pieces(cell_size: int = CELL_SIZE) -> dict[str, pygame.Surface]:
     for key, filename in pieces_sprite.items():
         image = pygame.image.load(filename).convert_alpha()
 
-        # Исходный размер спрайта
         width, height = image.get_size()
 
-        # Масштабируем пропорционально,
-        # чтобы фигура целиком помещалась в клетку
+        # proportional scaling
+        # propotrtion = width / height
         scale = min(
             cell_size / width,
             cell_size / height,
         )
-
+        # new size
         new_width = round(width * scale) - (cell_size // 20)
         new_height = round(height * scale) - (cell_size // 20)
-
+        
         pieces[key] = pygame.transform.smoothscale(
             image,
             (new_width, new_height),

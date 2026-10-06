@@ -1,15 +1,7 @@
 '''main file'''
 
-# если повезет добавить заготовку под юай оценки позиции
-
-# добавить кнопку для отмены хода, добавить кнопку для возвращения к начальной позиции
-# разобраться в инпут хендлере и борд вью новых строках 
-
-# добавить обозначения клеткам  
-
-# закончить и оптимизировать все эти планы = закончить гуи и начать учить спп, даю себе примерно 4 дня
-
 import pygame 
+
 from ui.config import DISPLAY_SIZE, CELL_SIZE, clock, FPS, GRAY, WHITE, BLACK, font
 from ui.BoardView import BoardView
 from ui.Board import chess_board, reset_board
@@ -24,13 +16,13 @@ pygame.init()
 screen = pygame.display.set_mode(DISPLAY_SIZE)
 pygame.display.set_caption("Chess engine")
 
-# create board view, input handler and load pieces
+# create board view, input handler and load pieces,
+# pos scale and start position button
 board_view = BoardView(30, 30, CELL_SIZE, screen)
 input_handler = InputHandler(board_view, chess_board)
 pieces = load_pieces(CELL_SIZE)
 start_pos_btn = Button(700, 30, 100, 50, WHITE, "Start Pos", reset_board)
 pos_scale = PosScale(700, 100, 70, 400)
-
 
 
 def main():
@@ -59,7 +51,7 @@ def main():
             pygame.mouse.get_pos(),
         )
         start_pos_btn.draw(screen, font, BLACK)
-        pos_scale.draw(screen, 0.0)
+        pos_scale.draw(screen, -1.0)
 
         pygame.display.flip() # GUI update
         clock.tick(FPS) # fps limiter 

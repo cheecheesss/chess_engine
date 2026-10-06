@@ -1,3 +1,5 @@
+'''A vertical scale to visualize the evaluation score of the chess engine.'''
+
 import pygame
 from ui.config import WHITE, BLACK, GRAY, font
 
@@ -7,10 +9,11 @@ class PosScale(pygame.Rect):
 
     def black_height(self, pos):
         """Return the black area height for a score in the [-10, 10] range."""
-        pos = max(-10, min(10, pos))
-        return round((10 - pos) * self.height / 20)
+        pos = max(-10, min(10, pos)) # clamp pos to [-10, 10]
+        return round((10 - pos) * self.height / 20) 
 
     def draw(self, screen, pos):
+        '''Draw the scale on the screen.'''
         pygame.draw.rect(screen, WHITE, self)
 
         black_height = self.black_height(pos)

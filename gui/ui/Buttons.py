@@ -1,5 +1,6 @@
-import pygame
+'''button class'''
 
+import pygame
 
 class Button(pygame.Rect):
     def __init__(self, x, y, width, height, color, text, action=None):
@@ -9,6 +10,7 @@ class Button(pygame.Rect):
         self.action = action
 
     def draw(self, screen, font, text_color):
+        '''Draw the button on the screen.'''
         pygame.draw.rect(screen, self.color, self)
 
         label = font.render(self.text, True, text_color)
