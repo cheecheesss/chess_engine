@@ -10,3 +10,10 @@ chess_board = [
     'w_p', 'w_p', 'w_p', 'w_p', 'w_p', 'w_p', 'w_p', 'w_p',
     'w_r', 'w_n', 'w_b', 'w_q', 'w_k', 'w_b', 'w_n', 'w_r',
 ]
+
+start_pos = chess_board
+
+start_pos = chess_board.copy()
+
+def reset_board():
+    chess_board[:] = start_pos.copy()

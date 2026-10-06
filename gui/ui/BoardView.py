@@ -26,9 +26,18 @@ class BoardView:
                     (x, y, self.cell_size, self.cell_size)
                 )
 
-    def draw_pieces(self, board, pieces):
+    def cell_at(self, position):
+        x, y = position
+        col = (x - self.x0) // self.cell_size
+        row = (y - self.y0) // self.cell_size
+
+        if 0 <= row < 8 and 0 <= col < 8:
+            return row * 8 + col
+        return None
+
+    def draw_pieces(self, board, pieces, hidden_index=None):
         for index, piece in enumerate(board):
-            if piece is None:
+            if piece is None or index == hidden_index:
                 continue
 
             row, col = divmod(index, 8)
@@ -44,3 +53,12 @@ class BoardView:
             y = cell_y + (self.cell_size - sprite.get_height()) // 2
 
             self.screen.blit(sprite, (x, y))
+
+    def draw_dragged_piece(self, piece, pieces, position):
+        if piece is None:
+            return
+
+        sprite = pieces[piece]
+        x = position[0] - sprite.get_width() // 2
+        y = position[1] - sprite.get_height() // 2
+        self.screen.blit(sprite, (x, y))
