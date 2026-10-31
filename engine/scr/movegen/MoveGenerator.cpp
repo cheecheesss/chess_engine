@@ -1,8 +1,31 @@
 #include "movegen/MoveGenerator.hpp"
 
 // ideas 
+// 
 // generateJumpMoves() — для коня и короля.
 // generateSlidingMoves() — для слона, ладьи и ферзя.
+// вспомогательные 
+// isInsideBoard() - проверка в доске ли
+// 
+
+bool MoveGenerator::isInsideBoard(int x, int y) const {
+    return (x >= 0 && x < 8 && y >= 0 && y < 8);
+}
+std::vector<Move> MoveGenerator::generateJumpMoves() const {
+    //lelele
+}
+std::vector<Move> MoveGenerator::generateSlidingMoves() const {
+    // lelele
+}
+
+// bool MoveGenerator::isSquareAttacked() const {
+//     //lelele
+// }
+// bool MoveGenerator::isKingInCheck() const {
+//     // lelele
+// }
+
+
 
 std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
     const Position& position, // list 0-63 (squares of board)
@@ -31,7 +54,7 @@ std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
                 int newY = y + KnightMoves[i][1];
         
                 // В ПОЛЕ МОЖНО!
-                if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                if (isInsideBoard(newX, newY)) {
                     int to = newY * 8 + newX;
                     Piece targetPiece = position.at(to);
                     
@@ -55,7 +78,7 @@ std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
                 int newX = x + KingMoves[i][0];
                 int newY = y + KingMoves[i][1];
                 
-                if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                if (isInsideBoard(newX, newY)) {
                     int to = newY * 8 + newX;
                     Piece targetPiece = position.at(to);
                     
@@ -83,7 +106,7 @@ std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
                 int newY = y + stepY;
         
                 // ЦИКЛ ПОКА В ПОЛЕ 
-                while (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                while (isInsideBoard(newX, newY)) {
                     int to = newY * 8 + newX;
                     Piece targetPiece = position.at(to);
                     
@@ -120,7 +143,7 @@ std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
                 int newY = y + stepY;
                 
                 // ЦИКЛ ПОКА В ПОЛЕ 
-                while (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                while (isInsideBoard(newX, newY)) {
                     int to = newY * 8 + newX;
                     Piece targetPiece = position.at(to);
                     
@@ -159,7 +182,7 @@ std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
                 int newY = y + stepY;
                 
                 // ЦИКЛ ПОКА В ПОЛЕ
-                while (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                while (isInsideBoard(newX, newY)) {
                     int to = newY * 8 + newX;
                     Piece targetPiece = position.at(to);
                     
@@ -227,7 +250,6 @@ std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
                     }
                 }
             }
-        
             break;
         }       
     }
