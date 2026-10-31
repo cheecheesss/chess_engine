@@ -183,8 +183,53 @@ std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
         // ВСЕ ЧТО ВЫШЕ ОБЪЕДИНИТЬ В 1 ФУНКЦИЮ НАДО (СЛОН, ЛАДЬЯ, КОРОЛЕВА)
 
         case PieceType::Pawn: {
-            // pawn search move mechanic 
-        }
+            // Направление движения пешки
+            int direction = myPiece.color == Color::White ? -1 : 1;
+
+            // Определяем начальную горизонталь
+            bool isStartingRank =
+                (myPiece.color == Color::White && y == 6) ||
+                (myPiece.color == Color::Black && y == 1);
+
+            // 1. Обычный ход вперёд
+            int newY = y + direction;
+
+            if (newY >= 0 && newY < 8) {
+                int to = newY * 8 + x;
+                Piece targetPiece = position.at(to);
+            
+                if (targetPiece.isEmpty()) {
+                    moves.push_back(Move(from, to));
+                
+                    // 2. Двойной ход с начальной горизонтали
+                    if (isStartingRank) {
+                        int doubleY = y + direction * 2;
+                        int doubleTo = doubleY * 8 + x;
+                    
+                        if (position.at(doubleTo).isEmpty()) {
+                            moves.push_back(Move(from, doubleTo));
+                        }
+                    }
+                }
+                // 3. Диагональные взятия
+                for (int dx : {-1, 1}) {
+                    int captureX = x + dx;
+                    int captureY = y + direction;
+                
+                    if (captureX >= 0 && captureX < 8) {
+                        int captureTo = captureY * 8 + captureX;
+                        Piece targetPiece = position.at(captureTo);
+                    
+                        if (!targetPiece.isEmpty() &&
+                            targetPiece.color != myPiece.color) {
+                            moves.push_back(Move(from, captureTo));
+                        }
+                    }
+                }
+            }
+        
+            break;
+        }       
     }
     return moves;
 }
