@@ -1,0 +1,6 @@
+1. Types - have make pattern for piece 
+2. Position - add board that has 64 squares:
+    setPiece - put piece to square
+    at - get piece on square
+
+3. MoveGenerator - give list of pseudo legal moves

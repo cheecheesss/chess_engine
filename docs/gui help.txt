@@ -1,0 +1,22 @@
+1. main - start window of program
+2. Sprites - import sprites:
+    load_pieces - load all piece sprites into dict type
+
+3. PosScale - init pos scale class:
+    draw - draw pos scale
+    
+4. InputHandler - init input handler class:
+    handle_event - handle mouse events 
+
+5. config - all settings
+6. Buttons - init buttons class: 
+    1. draw - draw buttons
+    2. handle_event - handle click on button
+
+7. BoardView - visualize board for user: 
+    1. draw_board - draw board (all squares)
+    2. draw_pieces - draw draw pieces on this board on start prog
+    3. draw_dragged_piece - draw pieces on cursor and after move
+
+8. Board - board for computer and draw board: 
+    reset_board - returns board to the init position

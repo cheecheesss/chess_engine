@@ -1,4 +1,5 @@
 # Chess Engine
+(readme генерировал чат гпт)
 
 Собственный шахматный движок на C++ с графическим интерфейсом на Python/Pygame.
 
@@ -39,5 +40,5 @@
 │  Evaluation         │
 │  Transposition      │
 │  Zobrist Hashing    │
-└───────
+└─────────────────────┘
 ```

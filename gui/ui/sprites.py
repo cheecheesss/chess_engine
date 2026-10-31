@@ -33,7 +33,7 @@ def load_pieces(cell_size: int = CELL_SIZE) -> dict[str, pygame.Surface]:
         width, height = image.get_size()
 
         # proportional scaling
-        # propotrtion = width / height
+        # proportion = width / height
         scale = min(
             cell_size / width,
             cell_size / height,

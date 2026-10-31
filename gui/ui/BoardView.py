@@ -5,7 +5,7 @@ from ui.config import BLUE, WHITE
 
 
 class BoardView: 
-    '''draw board for screen(windoow)'''
+    '''draw board for screen(window)'''
     def __init__(self, x0, y0, cell_size, screen):
         self.x0 = x0
         self.y0 = y0
@@ -51,11 +51,12 @@ class BoardView:
 
             sprite = pieces[piece]
 
-            # сentering the sprite relative to the cell
+            # centering the sprite relative to the cell
             x = cell_x + (self.cell_size - sprite.get_width()) // 2
             y = cell_y + (self.cell_size - sprite.get_height()) // 2
 
             self.screen.blit(sprite, (x, y))
+            
 
     def draw_dragged_piece(self, piece, pieces, position):
         if piece is None:

@@ -2,7 +2,7 @@
 
 import pygame 
 
-from ui.config import DISPLAY_SIZE, CELL_SIZE, clock, FPS, GRAY, WHITE, BLACK, font
+from ui.config import *
 from ui.BoardView import BoardView
 from ui.Board import chess_board, reset_board
 from ui.InputHandler import InputHandler

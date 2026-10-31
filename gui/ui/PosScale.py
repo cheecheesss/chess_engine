@@ -7,7 +7,7 @@ class PosScale(pygame.Rect):
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height)
 
-    def black_height(self, pos):
+    def _black_height(self, pos):
         """Return the black area height for a score in the [-10, 10] range."""
         pos = max(-10, min(10, pos)) # clamp pos to [-10, 10]
         return round((10 - pos) * self.height / 20) 
@@ -16,7 +16,7 @@ class PosScale(pygame.Rect):
         '''Draw the scale on the screen.'''
         pygame.draw.rect(screen, WHITE, self)
 
-        black_height = self.black_height(pos)
+        black_height = self._black_height(pos)
         pygame.draw.rect(
             screen,
             BLACK,
