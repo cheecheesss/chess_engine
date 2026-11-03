@@ -1,257 +1,261 @@
+#include <stdexcept>
 #include "movegen/MoveGenerator.hpp"
-
-// ideas 
-// 
-// generateJumpMoves() — для коня и короля.
-// generateSlidingMoves() — для слона, ладьи и ферзя.
-// вспомогательные 
-// isInsideBoard() - проверка в доске ли
-// 
 
 bool MoveGenerator::isInsideBoard(int x, int y) const {
     return (x >= 0 && x < 8 && y >= 0 && y < 8);
 }
-std::vector<Move> MoveGenerator::generateJumpMoves() const {
-    //lelele
+
+std::vector<Move> MoveGenerator::generateJumpMoves(
+    const Position& position,
+    int from
+) const {
+    if (from < 0 || from >= 64) {
+        throw std::invalid_argument("Invalid square index");
+    }
+    std::vector<Move> moves;
+    Piece myPiece = position.at(from);
+    PieceType figureType = myPiece.type;
+
+    const int KnightMoves[8][2] = {
+        {-1, 2}, {1, 2},
+        {2, 1}, {-2, 1},
+        {-2, -1}, {2, -1},
+        {-1, -2}, {1, -2},
+    }; 
+    const int KingMoves[8][2] = {
+        {1, -1}, {1, 1},
+        {-1, -1}, {-1, 1},
+        {1, 0}, {-1, 0},
+        {0, 1}, {0, -1},
+    };
+    const int (*moveList)[2] = nullptr;
+
+    if (figureType == PieceType::Knight) {
+        moveList = KnightMoves;
+    } else if (figureType == PieceType::King) {
+        moveList = KingMoves;
+    } else {
+        throw std::logic_error("generateJumpMoves called with non-jumping piece type");
+    }
+
+    for (int i = 0; i < 8; ++i) {
+        int newX = (from % 8) + moveList[i][0];
+        int newY = (from / 8) + moveList[i][1];
+
+        if (isInsideBoard(newX, newY)) {
+            int to = newY * 8 + newX;
+            Piece targetPiece = position.at(to);
+
+            if (targetPiece.isEmpty() || targetPiece.color != myPiece.color) {
+                moves.push_back(Move(from, to));
+            }
+        }
+    }
+    return moves;
 }
-std::vector<Move> MoveGenerator::generateSlidingMoves() const {
-    // lelele
+
+std::vector<Move> MoveGenerator::generateSlidingMoves(
+    const Position& position,
+    int from
+) const {
+    if (from < 0 || from >= 64) {
+        throw std::invalid_argument("Invalid square index");
+    }
+    std::vector<Move> moves;
+    Piece myPiece = position.at(from);
+    PieceType figureType = myPiece.type;
+
+    const int BishopMoves[4][2] = {
+        {1, -1}, {1, 1},
+        {-1, -1}, {-1, 1},
+    };
+    const int RookMoves[4][2] = {
+        {1, 0}, {-1, 0},
+        {0, 1}, {0, -1},
+    };
+    const int QueenMoves[8][2] = {
+        {1, -1}, {1, 1},
+        {-1, -1}, {-1, 1},
+        {1, 0}, {-1, 0},
+        {0, 1}, {0, -1},
+    };
+
+    const int (*moveList)[2] = nullptr;
+
+    if (figureType == PieceType::Bishop) {
+        moveList = BishopMoves;
+    } else if (figureType == PieceType::Rook) {
+        moveList = RookMoves;
+    } else if (figureType == PieceType::Queen) {
+        moveList = QueenMoves;
+    } else {
+        throw std::logic_error("generateSlidingMoves called with non-sliding piece type");
+    }
+    int directionCount = (figureType == PieceType::Queen) ? 8 : 4;
+
+    for (int i = 0; i < directionCount; ++i) {
+        int stepX = moveList[i][0];
+        int stepY = moveList[i][1];
+
+        int newX = (from % 8) + stepX;
+        int newY = (from / 8) + stepY;
+
+        while (isInsideBoard(newX, newY)) {
+            int to = newY * 8 + newX;
+            Piece targetPiece = position.at(to);
+
+            if (targetPiece.isEmpty()) {
+                moves.push_back(Move(from, to));
+            } else if (targetPiece.color != myPiece.color) {
+                moves.push_back(Move(from, to));
+                break; // Stop sliding in this direction after capturing
+            } else {
+                break; // Blocked by own piece
+            }
+
+            newX += stepX;
+            newY += stepY;
+        }
+    }
+    return moves;
 }
 
-// bool MoveGenerator::isSquareAttacked() const {
-//     //lelele
-// }
-// bool MoveGenerator::isKingInCheck() const {
-//     // lelele
-// }
+std::vector<Move> MoveGenerator::generatePawnMoves(
+    const Position& position,
+    int from
+) const {
+    if (from < 0 || from >= 64) {
+        throw std::invalid_argument("Invalid square index");
+    }
 
+    Piece pawn = position.at(from);
+    if (pawn.type != PieceType::Pawn) {
+        throw std::logic_error("generatePawnMoves called with non-pawn piece type");
+    }
 
+    std::vector<Move> moves;
+    const int x = from % 8;
+    const int y = from / 8;
+    const int direction = pawn.color == Color::White ? -1 : 1;
+    const int nextY = y + direction;
+
+    if (!isInsideBoard(x, nextY)) {
+        return moves;
+    }
+
+    const int oneStepTo = nextY * 8 + x;
+    if (position.at(oneStepTo).isEmpty()) {
+        moves.push_back(Move(from, oneStepTo));
+
+        const bool isStartingRank =
+            (pawn.color == Color::White && y == 6) ||
+            (pawn.color == Color::Black && y == 1);
+
+        const int doubleY = y + direction * 2;
+        if (isStartingRank && isInsideBoard(x, doubleY)) {
+            const int twoStepsTo = doubleY * 8 + x;
+            if (position.at(twoStepsTo).isEmpty()) {
+                moves.push_back(Move(from, twoStepsTo));
+            }
+        }
+    }
+    for (int dx : {-1, 1}) {
+        const int captureX = x + dx;
+        if (!isInsideBoard(captureX, nextY)) {
+            continue;
+        }
+
+        const int captureTo = nextY * 8 + captureX;
+        const Piece target = position.at(captureTo);
+        if (!target.isEmpty() && target.color != pawn.color) {
+            moves.push_back(Move(from, captureTo));
+        }
+    }
+    return moves;
+}
 
 std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
     const Position& position, // list 0-63 (squares of board)
     int from // move from coord
 ) const {
-    std::vector<Move> moves; 
-    
-    int x = from  % 8;
-    int y = from / 8;
-    
-    Piece myPiece = position.at(from);
-    if (myPiece.isEmpty()) return moves;
-
-    switch (myPiece.type) {
-        case PieceType::Knight: {
-            // knight search move mechanic 
-            const int KnightMoves[8][2] = {
-                // {x, y}
-                {-1, 2}, {1, 2},
-                {2, 1}, {-2, 1},
-                {-2, -1}, {2, -1},
-                {-1, -2}, {1, -2},
-            }; 
-            for (int i = 0; i < 8; ++i){
-                int newX = x + KnightMoves[i][0];
-                int newY = y + KnightMoves[i][1];
-        
-                // В ПОЛЕ МОЖНО!
-                if (isInsideBoard(newX, newY)) {
-                    int to = newY * 8 + newX;
-                    Piece targetPiece = position.at(to);
-                    
-                    // ПУСТО ИЛИ ФИГУРА МОЖНО !
-                    if (targetPiece.isEmpty() || targetPiece.color != myPiece.color)
-                        moves.push_back(Move(from, to));
-                }
-            }
-            break;
-        }
-        
-        case PieceType::King: {
-            // king search move mechanic 
-            const int KingMoves[8][2] = {
-                {1, -1}, {1, 1},
-                {-1, -1}, {-1, 1},
-                {1, 0}, {-1, 0},
-                {0, 1}, {0, -1},
-            };
-            for (int i = 0; i < 8; ++i) {
-                int newX = x + KingMoves[i][0];
-                int newY = y + KingMoves[i][1];
-                
-                if (isInsideBoard(newX, newY)) {
-                    int to = newY * 8 + newX;
-                    Piece targetPiece = position.at(to);
-                    
-                    // ПУСТО МОЖНО!
-                    if (targetPiece.isEmpty() || targetPiece.color != myPiece.color)
-                        moves.push_back(Move(from, to));
-                }
-            }
-            break;
-        }
-        // ВСЕ ЧТО ВЫШЕ ОБЪЕДИНИТЬ В 1 ФУНКЦИЮ НАДО (КОРОЛЬ, КОНЬ)
-        
-        case PieceType::Bishop: {
-            // bishop search move mechanic
-            const int BishopMoves[4][2] = {
-                {1, -1}, {1, 1},
-                {-1, -1}, {-1, 1},
-            };
-            for (int i = 0; i < 4; ++i) {
-                int stepX = BishopMoves[i][0];
-                int stepY = BishopMoves[i][1];
-        
-                // ИДЕМ В НАПРАВЛЕНИИ
-                int newX = x + stepX;
-                int newY = y + stepY;
-        
-                // ЦИКЛ ПОКА В ПОЛЕ 
-                while (isInsideBoard(newX, newY)) {
-                    int to = newY * 8 + newX;
-                    Piece targetPiece = position.at(to);
-                    
-                    // ПУСТО МОЖНО!
-                    if (targetPiece.isEmpty())
-                        moves.push_back(Move(from, to));
-                    
-                    // ВСЕ ЧУЖАЯ ФИГУРА, КУШАТЬ И ВСТАТЬ
-                    else if (targetPiece.color != myPiece.color) {
-                        moves.push_back(Move(from, to));
-                        break;
-                    }
-                    else break;
-        
-                    newX += stepX;
-                    newY += stepY;
-                }
-            }
-            break;
-        }
-
-        case PieceType::Rook: {
-            // rook search move mechanic 
-            const int RookMoves [4][2] = {
-                {1, 0}, {-1, 0},
-                {0, 1}, {0, -1},
-            };
-            for (int i = 0; i < 4; ++i) {
-                int stepX = RookMoves[i][0];
-                int stepY = RookMoves[i][1];
-        
-                // ИДЕМ В НАПРАВЛЕНИИ
-                int newX = x + stepX;
-                int newY = y + stepY;
-                
-                // ЦИКЛ ПОКА В ПОЛЕ 
-                while (isInsideBoard(newX, newY)) {
-                    int to = newY * 8 + newX;
-                    Piece targetPiece = position.at(to);
-                    
-                    // ПУСТО МОЖНО!
-                    if (targetPiece.isEmpty())
-                        moves.push_back(Move(from, to));
-                    
-                    // ВСЕ ЧУЖАЯ ФИГУРА, КУШАТЬ И ВСТАТЬ
-                    else if (targetPiece.color != myPiece.color) {
-                        moves.push_back(Move(from, to));
-                        break;
-                    }
-                    else break;
-        
-                    newX += stepX;
-                    newY += stepY;
-                }
-            }
-            break;
-        }
-
-        case PieceType::Queen: {
-        // queen search move mechanic 
-            const int QueenMoves[8][2] = {
-                {1, -1}, {1, 1},
-                {-1, -1}, {-1, 1},
-                {1, 0}, {-1, 0},
-                {0, 1}, {0, -1},
-            };
-            for (int i = 0; i < 8; ++i) {
-                int stepX = QueenMoves[i][0];
-                int stepY = QueenMoves[i][1];
-        
-                // ИДЕМ В НАПРАВЛЕНИИ
-                int newX = x + stepX;
-                int newY = y + stepY;
-                
-                // ЦИКЛ ПОКА В ПОЛЕ
-                while (isInsideBoard(newX, newY)) {
-                    int to = newY * 8 + newX;
-                    Piece targetPiece = position.at(to);
-                    
-                    // ПУСТО МОЖНО!
-                    if (targetPiece.isEmpty())
-                        moves.push_back(Move(from, to));
-                    
-                    // ВСЕ ЧУЖАЯ ФИГУРА, КУШАТЬ И ВСТАТЬ
-                    else if (targetPiece.color != myPiece.color) {
-                        moves.push_back(Move(from, to));
-                        break;
-                    }
-                    else break;
-        
-                    newX += stepX;
-                    newY += stepY;
-                }
-            }
-            break;
-        }
-        // ВСЕ ЧТО ВЫШЕ ОБЪЕДИНИТЬ В 1 ФУНКЦИЮ НАДО (СЛОН, ЛАДЬЯ, КОРОЛЕВА)
-
-        case PieceType::Pawn: {
-            // Направление движения пешки
-            int direction = myPiece.color == Color::White ? -1 : 1;
-
-            // Определяем начальную горизонталь
-            bool isStartingRank =
-                (myPiece.color == Color::White && y == 6) ||
-                (myPiece.color == Color::Black && y == 1);
-
-            // 1. Обычный ход вперёд
-            int newY = y + direction;
-
-            if (newY >= 0 && newY < 8) {
-                int to = newY * 8 + x;
-                Piece targetPiece = position.at(to);
-            
-                if (targetPiece.isEmpty()) {
-                    moves.push_back(Move(from, to));
-                
-                    // 2. Двойной ход с начальной горизонтали
-                    if (isStartingRank) {
-                        int doubleY = y + direction * 2;
-                        int doubleTo = doubleY * 8 + x;
-                    
-                        if (position.at(doubleTo).isEmpty()) {
-                            moves.push_back(Move(from, doubleTo));
-                        }
-                    }
-                }
-                // 3. Диагональные взятия
-                for (int dx : {-1, 1}) {
-                    int captureX = x + dx;
-                    int captureY = y + direction;
-                
-                    if (captureX >= 0 && captureX < 8) {
-                        int captureTo = captureY * 8 + captureX;
-                        Piece targetPiece = position.at(captureTo);
-                    
-                        if (!targetPiece.isEmpty() &&
-                            targetPiece.color != myPiece.color) {
-                            moves.push_back(Move(from, captureTo));
-                        }
-                    }
-                }
-            }
-            break;
-        }       
+    if (from < 0 || from >= 64) {
+        throw std::invalid_argument("Invalid square index");
     }
-    return moves;
+
+    Piece piece = position.at(from);
+    if (piece.isEmpty()) {
+        return {};
+    }
+
+    switch (piece.type) {
+        case PieceType::Pawn:
+            return generatePawnMoves(position, from);
+
+        case PieceType::Knight:
+        case PieceType::King:
+            return generateJumpMoves(position, from);
+
+        case PieceType::Bishop:
+        case PieceType::Rook:
+        case PieceType::Queen:
+            return generateSlidingMoves(position, from);
+        
+        default: return {};
+    }
+    
+}
+
+bool MoveGenerator::isSquareAttacked( // пока что не работает нормально с пешками
+    const Position& position,
+    int square,
+    Color attacker
+) const {
+    // Проверяем, атакуется ли квадрат "square" фигурой цвета "attacker"
+    for (int from = 0; from < 64; ++from) {
+        Piece piece = position.at(from);
+        if (!piece.isEmpty() && piece.color == attacker) {
+            // сначала пешка
+            if (piece.type == PieceType::Pawn) {
+                const int direction = attacker == Color::White ? -1 : 1;
+                const int x = from % 8;
+                const int y = from / 8;
+            
+                for (int dx : {-1, 1}) {
+                    if (x + dx == square % 8 &&
+                        y + direction == square / 8) {
+                        return true;
+                    }
+                }
+                continue;
+            }
+            // если не пешка то все остальное
+            std::vector<Move> moves = generatePseudoLegalMoves(position, from);
+            for (const Move& move : moves) {
+                if (move.to == square) {
+                    return true; // Квадрат атакуется
+                }
+            }
+        }
+    }
+    return false; // Квадрат не атакуется
+}
+
+bool MoveGenerator::isKingInCheck(
+    const Position& position,
+    Color kingColor
+) const {
+    //ищем короля на доске
+    int kingSquare = -1;
+    for (int square = 0; square < 64; ++square) {
+        Piece piece = position.at(square);
+        if (!piece.isEmpty() && piece.type == PieceType::King && piece.color == kingColor) {
+            kingSquare = square;
+            break;
+        }
+    }
+    if (kingSquare == -1) {
+        return false; // Король не найден
+    }
+    Color opponentColor = (kingColor == Color::White) ? Color::Black : Color::White;
+    return isSquareAttacked(position, kingSquare, opponentColor);
 }

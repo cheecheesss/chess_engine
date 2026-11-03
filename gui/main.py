@@ -51,7 +51,7 @@ def main():
             pygame.mouse.get_pos(),
         )
         start_pos_btn.draw(screen, font, BLACK)
-        pos_scale.draw(screen, -1.0)
+        pos_scale.draw(screen, 10)
 
         pygame.display.flip() # GUI update
         clock.tick(FPS) # fps limiter 
