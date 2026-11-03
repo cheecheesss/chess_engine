@@ -34,6 +34,12 @@ class MoveGenerator {
             const Position& position,
             Color color, 
             CastlingSide side) const;
+
+        std::vector<Move> generateCastlingMoves(
+            const Position& position,
+            int from,
+            CastlingSide side
+        ) const;
             
         
         void makeMove(Position& position, const Move& move); 
@@ -43,12 +49,6 @@ class MoveGenerator {
         std::vector<Move> generatePseudoLegalMoves(
             const Position& position,
             int from
-        ) const;
-
-        std::vector<Move> generateCastlingMoves(
-            const Position& position, 
-            int from,
-            const CastlingSide side
         ) const;
 
         bool isSquareAttacked(

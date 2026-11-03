@@ -47,7 +47,7 @@ std::vector<Move> MoveGenerator::generateJumpMoves(
             Piece targetPiece = position.at(to);
 
             if (targetPiece.isEmpty() || targetPiece.color != myPiece.color) {
-                moves.push_back(Move(from, to));
+                moves.push_back(Move{from, to});
             }
         }
     }
@@ -105,9 +105,9 @@ std::vector<Move> MoveGenerator::generateSlidingMoves(
             Piece targetPiece = position.at(to);
 
             if (targetPiece.isEmpty()) {
-                moves.push_back(Move(from, to));
+                moves.push_back(Move{from, to});
             } else if (targetPiece.color != myPiece.color) {
-                moves.push_back(Move(from, to));
+                moves.push_back(Move{from, to});
                 break; // Stop sliding in this direction after capturing
             } else {
                 break; // Blocked by own piece
@@ -145,7 +145,7 @@ std::vector<Move> MoveGenerator::generatePawnMoves(
 
     const int oneStepTo = nextY * 8 + x;
     if (position.at(oneStepTo).isEmpty()) {
-        moves.push_back(Move(from, oneStepTo));
+        moves.push_back(Move{from, oneStepTo});
 
         const bool isStartingRank =
             (pawn.color == Color::White && y == 6) ||
@@ -155,7 +155,7 @@ std::vector<Move> MoveGenerator::generatePawnMoves(
         if (isStartingRank && isInsideBoard(x, doubleY)) {
             const int twoStepsTo = doubleY * 8 + x;
             if (position.at(twoStepsTo).isEmpty()) {
-                moves.push_back(Move(from, twoStepsTo));
+                moves.push_back(Move{from, twoStepsTo});
             }
         }
     }
@@ -168,7 +168,7 @@ std::vector<Move> MoveGenerator::generatePawnMoves(
         const int captureTo = nextY * 8 + captureX;
         const Piece target = position.at(captureTo);
         if (!target.isEmpty() && target.color != pawn.color) {
-            moves.push_back(Move(from, captureTo));
+            moves.push_back(Move{from, captureTo});
         }
     }
     return moves;
@@ -192,8 +192,17 @@ std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
             return generatePawnMoves(position, from);
 
         case PieceType::Knight:
-        case PieceType::King:
             return generateJumpMoves(position, from);
+
+        case PieceType::King: {
+            std::vector<Move> moves = generateJumpMoves(position, from);
+            for (CastlingSide side : {CastlingSide::KingSide, CastlingSide::QueenSide}) {
+                std::vector<Move> castlingMoves =
+                    generateCastlingMoves(position, from, side);
+                moves.insert(moves.end(), castlingMoves.begin(), castlingMoves.end());
+            }
+            return moves;
+        }
 
         case PieceType::Bishop:
         case PieceType::Rook:
@@ -201,8 +210,7 @@ std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
             return generateSlidingMoves(position, from);
         
         default: return {};
-    }
-    
+    }   
 }
 
 bool MoveGenerator::isSquareAttacked( // пока что не работает нормально с пешками
@@ -229,7 +237,9 @@ bool MoveGenerator::isSquareAttacked( // пока что не работает �
                 continue;
             }
             // если не пешка то все остальное
-            std::vector<Move> moves = generatePseudoLegalMoves(position, from);
+            std::vector<Move> moves = piece.type == PieceType::King
+                ? generateJumpMoves(position, from)
+                : generatePseudoLegalMoves(position, from);
             for (const Move& move : moves) {
                 if (move.to == square) {
                     return true; // Квадрат атакуется
@@ -258,4 +268,66 @@ bool MoveGenerator::isKingInCheck(
     }
     Color opponentColor = (kingColor == Color::White) ? Color::Black : Color::White;
     return isSquareAttacked(position, kingSquare, opponentColor);
+}
+
+bool MoveGenerator::canCastle(
+    const Position& position,
+    Color color,
+    CastlingSide side
+) const {
+    const int kingSquare = color == Color::White ? 60 : 4;
+    const int rookSquare = side == CastlingSide::KingSide
+        ? (color == Color::White ? 63 : 7)
+        : (color == Color::White ? 56 : 0);
+
+    const Piece king = position.at(kingSquare);
+    const Piece rook = position.at(rookSquare);
+    if (king.type != PieceType::King || king.color != color ||
+        rook.type != PieceType::Rook || rook.color != color) {
+        return false;
+    }
+
+    if (isKingInCheck(position, color)) {
+        return false;
+    }
+
+    const int step = side == CastlingSide::KingSide ? 1 : -1;
+    const Color attacker = color == Color::White ? Color::Black : Color::White;
+    for (int i = 1; i <= 2; ++i) {
+        const int square = kingSquare + step * i;
+        if (!position.at(square).isEmpty() ||
+            isSquareAttacked(position, square, attacker)) {
+            return false;
+        }
+    }
+
+    if (side == CastlingSide::QueenSide &&
+        !position.at(kingSquare - 3).isEmpty()) {
+        return false;
+    }
+
+    return true;
+}
+
+std::vector<Move> MoveGenerator::generateCastlingMoves(
+    const Position& position,
+    int from,
+    CastlingSide side
+) const {
+    if (from < 0 || from >= 64) {
+        throw std::invalid_argument("Invalid square index");
+    }
+
+    const Piece king = position.at(from);
+    if (king.type != PieceType::King) {
+        return {};
+    }
+
+    const int homeSquare = king.color == Color::White ? 60 : 4;
+    if (from != homeSquare || !canCastle(position, king.color, side)) {
+        return {};
+    }
+
+    const int to = side == CastlingSide::KingSide ? from + 2 : from - 2;
+    return {Move{from, to}};
 }
