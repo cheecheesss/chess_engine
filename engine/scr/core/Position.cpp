@@ -14,3 +14,17 @@ void Position::setPiece(int square, Piece piece) {
     } 
     board_[square] = piece;
 }
+
+int Position::enPassantTarget() const {
+    return enPassantTarget_;
+}
+
+void Position::setEnPassantTarget(int square) {
+    if (square < -1 || square >= 64) {
+        throw std::out_of_range("Invalid en passant target");
+    }
+    if (square != -1 && square / 8 != 2 && square / 8 != 5) {
+        throw std::invalid_argument("En passant target must be on rank 3 or 6");
+    }
+    enPassantTarget_ = square;
+}

@@ -170,6 +170,17 @@ std::vector<Move> MoveGenerator::generatePawnMoves(
         if (!target.isEmpty() && target.color != pawn.color) {
             moves.push_back(Move{from, captureTo});
         }
+        else if (target.isEmpty() && captureTo == position.enPassantTarget()) {
+            const int expectedTargetY = pawn.color == Color::White ? 2 : 5;
+            const int capturedPawnSquare = captureTo - direction * 8;
+            const Piece capturedPawn = position.at(capturedPawnSquare);
+
+            if (nextY == expectedTargetY &&
+                capturedPawn.type == PieceType::Pawn &&
+                capturedPawn.color != pawn.color) {
+                moves.push_back(Move{from, captureTo});
+            }
+        }
     }
     return moves;
 }

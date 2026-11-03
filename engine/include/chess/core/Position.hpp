@@ -9,7 +9,10 @@ public:
 
     Piece at(int square) const;
     void setPiece(int square, Piece piece);
+    int enPassantTarget() const;
+    void setEnPassantTarget(int square);
 
 private:
     std::array<Piece, 64> board_{};
+    int enPassantTarget_{-1};
 };
