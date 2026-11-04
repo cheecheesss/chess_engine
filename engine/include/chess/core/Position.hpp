@@ -18,6 +18,7 @@ public:
     int enPassantTarget() const;
     void setEnPassantTarget(int square);
 
+    CastlingRights getCastlingRights() const;
     bool castlingRight(
         Color color, 
         CastlingSide side

@@ -8,7 +8,7 @@
 MoveGenerator::UndoInfo MoveGenerator::makeMove(
     Position& position,
     const Move& move
-) {
+) const {
     // Проверка индексов исходного и целевого полей.
     if (move.from < 0 || move.from >= 64 ||
         move.to < 0 || move.to >= 64 ||
@@ -22,6 +22,7 @@ MoveGenerator::UndoInfo MoveGenerator::makeMove(
         throw std::logic_error("Attempting to make a move from an empty square");
     }
 
+    // ========== ВЗЯТИЕ НА ПРОХОДЕ ==========
     // Не допускаем взятие своей фигуры.
     const int previousEnPassantTarget = position.enPassantTarget();
     const Piece targetPiece = position.at(move.to);
@@ -89,6 +90,37 @@ MoveGenerator::UndoInfo MoveGenerator::makeMove(
         newEnPassantTarget = middleSquare;
     }
 
+    // ========== РОКИРОВКА ==========
+    CastlingRights previousCastlingRights = position.getCastlingRights();
+
+    int rookFrom = -1;
+    int rookTo = -1;
+    const bool isCastlingMove =
+        movedPiece.type == PieceType::King &&
+        (fileDifference == 2 || fileDifference == -2);
+
+    if (isCastlingMove) {
+        if (fileDifference == 2) { // короткая
+            rookFrom = move.from + 3;
+            rookTo = move.from + 1;
+        } else { // длинная
+            rookFrom = move.from - 4;
+            rookTo = move.from - 1;
+        }
+    }
+    if (capturedPiece.type == PieceType::Rook) {
+        const Color rookColor = capturedPiece.color;
+
+        if (capturedSquare == (rookColor == Color::White ? 63 : 7)) {
+            position.setCastlingRight(
+                rookColor, CastlingSide::KingSide, false);
+        } else if (capturedSquare == (rookColor == Color::White ? 56 : 0)) {
+            position.setCastlingRight(
+                rookColor, CastlingSide::QueenSide, false);
+        }
+    }
+
+    // Обновляем права на рокировку, если король или ладья были перемещены.
     if (movedPiece.type == PieceType::King) {
         position.setCastlingRight(movedPiece.color, CastlingSide::KingSide, false);
         position.setCastlingRight(movedPiece.color, CastlingSide::QueenSide, false);
@@ -101,10 +133,15 @@ MoveGenerator::UndoInfo MoveGenerator::makeMove(
         }
     }
 
-    // Обновляем позицию
+    // ========== ОБНОВЛЕНИЕ ПОЗИЦИИ ==========
     position.setPiece(move.from, Piece{});
     if (capturedSquare != -1) {
         position.setPiece(capturedSquare, Piece{});
+    }
+    if (isCastlingMove) {
+        const Piece rook = position.at(rookFrom);
+        position.setPiece(rookFrom, Piece{});
+        position.setPiece(rookTo, rook);
     }
     position.setPiece(move.to, movedPiece);
     position.setEnPassantTarget(newEnPassantTarget);
@@ -114,7 +151,9 @@ MoveGenerator::UndoInfo MoveGenerator::makeMove(
         movedPiece,
         capturedPiece,
         capturedSquare,
-        previousEnPassantTarget
+        previousEnPassantTarget,
+        previousCastlingRights,
+        rookFrom
     };
 }
 
@@ -124,13 +163,26 @@ MoveGenerator::UndoInfo MoveGenerator::makeMove(
 void MoveGenerator::undoMove(
     Position& position,
     const MoveGenerator::UndoInfo& undoInfo
-) {
+) const {
     position.setPiece(undoInfo.move.to, Piece{});
     position.setPiece(undoInfo.move.from, undoInfo.movedPiece);
 
     if (undoInfo.capturedSquare != -1) {
         position.setPiece(undoInfo.capturedSquare, undoInfo.capturedPiece);
     }
-
     position.setEnPassantTarget(undoInfo.previousEnPassantTarget);
+
+    if (undoInfo.rookFrom != -1) {
+        const int rookTo = undoInfo.move.to > undoInfo.move.from
+        ? undoInfo.move.from + 1
+        : undoInfo.move.from - 1;
+        
+        const Piece rook = position.at(rookTo);
+        position.setPiece(rookTo, Piece{});
+        position.setPiece(undoInfo.rookFrom, rook);
+    }
+    position.setCastlingRight(Color::White, CastlingSide::KingSide, undoInfo.previousCastlingRights.whiteKingSide);
+    position.setCastlingRight(Color::White, CastlingSide::QueenSide, undoInfo.previousCastlingRights.whiteQueenSide);
+    position.setCastlingRight(Color::Black, CastlingSide::KingSide, undoInfo.previousCastlingRights.blackKingSide);
+    position.setCastlingRight(Color::Black, CastlingSide::QueenSide, undoInfo.previousCastlingRights.blackQueenSide);
 }

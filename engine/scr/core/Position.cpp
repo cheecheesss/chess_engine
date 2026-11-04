@@ -28,6 +28,9 @@ void Position::setEnPassantTarget(int square) {
     }
     enPassantTarget_ = square;
 }
+CastlingRights Position::getCastlingRights() const {
+    return castlingRights_;
+}
 
 bool Position::castlingRight(
     Color color, 

@@ -11,9 +11,14 @@ class MoveGenerator {
         struct UndoInfo {
             Move move;
             Piece movedPiece;
+            
             Piece capturedPiece;
             int capturedSquare{-1};
+
             int previousEnPassantTarget{-1};
+            
+            CastlingRights previousCastlingRights;
+            int rookFrom{-1};
         };
 
         bool isInsideBoard(int newX, int newY) const;
@@ -45,13 +50,18 @@ class MoveGenerator {
         ) const;
             
         
-        UndoInfo makeMove(Position& position, const Move& move); 
-        void undoMove(Position& position, const UndoInfo& undoInfo);
+        UndoInfo makeMove(Position& position, const Move& move) const; 
+        void undoMove(Position& position, const UndoInfo& undoInfo) const;
     
-    public:
         std::vector<Move> generatePseudoLegalMoves(
             const Position& position,
             int from
+        ) const;
+    public:
+
+        std::vector<Move> generateLegalMovesForSide(
+            const Position& position,
+            Color sideToMove
         ) const;
 
         bool isSquareAttacked(
