@@ -1,7 +1,10 @@
 #include <stdexcept>
 #include "movegen/MoveGenerator.hpp"
 
-
+/// @brief Генерирует псевдо-законные ходы для фигуры на указанной позиции
+/// @param position 
+/// @param from 
+/// @return 
 std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
     const Position& position, // list 0-63 (squares of board)
     int from // move from coord

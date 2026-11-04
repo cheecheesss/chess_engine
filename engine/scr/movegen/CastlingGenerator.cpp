@@ -6,6 +6,9 @@ bool MoveGenerator::canCastle(
     Color color,
     CastlingSide side
 ) const {
+    if (!position.castlingRight(color, side)) {
+        return false;
+    }
     const int kingSquare = color == Color::White ? 60 : 4;
     const int rookSquare = side == CastlingSide::KingSide
         ? (color == Color::White ? 63 : 7)

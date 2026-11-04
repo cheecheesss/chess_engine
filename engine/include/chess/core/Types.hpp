@@ -18,6 +18,11 @@ enum class PieceType : uint8_t {
     King
 };
 
+enum class CastlingSide : uint8_t {
+    KingSide,
+    QueenSide
+};
+
 struct Piece {
     PieceType type{PieceType::None};
     Color color{Color::White};

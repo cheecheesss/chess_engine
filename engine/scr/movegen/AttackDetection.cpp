@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "movegen/MoveGenerator.hpp"
 
 bool MoveGenerator::isSquareAttacked( // надо жестко оптимизировать
@@ -20,7 +21,7 @@ bool MoveGenerator::isSquareAttacked( // надо жестко оптимизи�
                         y + direction == square / 8) {
                         return true;
                     }
-                }
+                }   
                 continue;
             }
             // если не пешка то все остальное
@@ -36,7 +37,10 @@ bool MoveGenerator::isSquareAttacked( // надо жестко оптимизи�
     }
     return false; // Квадрат не атакуется
 }
-
+/// @brief Проверяет, находится ли король под шахом
+/// @param position 
+/// @param kingColor 
+/// @return bool - true если король под шахом, false иначе
 bool MoveGenerator::isKingInCheck(
     const Position& position,
     Color kingColor
@@ -51,7 +55,7 @@ bool MoveGenerator::isKingInCheck(
         }
     }
     if (kingSquare == -1) {
-        return false; // Король не найден
+        throw std::logic_error("King not found on the board"); // Король не найден
     }
     Color opponentColor = (kingColor == Color::White) ? Color::Black : Color::White;
     return isSquareAttacked(position, kingSquare, opponentColor);

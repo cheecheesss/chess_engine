@@ -28,3 +28,38 @@ void Position::setEnPassantTarget(int square) {
     }
     enPassantTarget_ = square;
 }
+
+bool Position::castlingRight(
+    Color color, 
+    CastlingSide side
+) const {
+    if (color == Color::White) {
+        return side == CastlingSide::KingSide
+            ? castlingRights_.whiteKingSide
+            : castlingRights_.whiteQueenSide;
+    } else {
+        return side == CastlingSide::KingSide
+            ? castlingRights_.blackKingSide
+            : castlingRights_.blackQueenSide;
+    }
+}
+
+void Position::setCastlingRight(
+    Color color, 
+    CastlingSide side,
+    bool allowed
+) {
+    if (color == Color::White) {
+        if (side == CastlingSide::KingSide) {
+            castlingRights_.whiteKingSide = allowed;
+        } else {
+            castlingRights_.whiteQueenSide = allowed;
+        }
+    } else {
+        if (side == CastlingSide::KingSide) {
+            castlingRights_.blackKingSide = allowed;
+        } else {
+            castlingRights_.blackQueenSide = allowed;
+        }
+    }
+}

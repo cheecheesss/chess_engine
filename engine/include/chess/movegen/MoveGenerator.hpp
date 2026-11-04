@@ -8,9 +8,12 @@
 
 class MoveGenerator {
     private:
-        enum class CastlingSide : uint8_t {
-            KingSide,
-            QueenSide
+        struct UndoInfo {
+            Move move;
+            Piece movedPiece;
+            Piece capturedPiece;
+            int capturedSquare{-1};
+            int previousEnPassantTarget{-1};
         };
 
         bool isInsideBoard(int newX, int newY) const;
@@ -42,8 +45,8 @@ class MoveGenerator {
         ) const;
             
         
-        void makeMove(Position& position, const Move& move); 
-        void undoMove(Position& position /*хз пока как хранить пред ход*/);
+        UndoInfo makeMove(Position& position, const Move& move); 
+        void undoMove(Position& position, const UndoInfo& undoInfo);
     
     public:
         std::vector<Move> generatePseudoLegalMoves(
