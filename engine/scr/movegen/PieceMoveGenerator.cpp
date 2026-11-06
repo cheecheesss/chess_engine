@@ -5,14 +5,14 @@ bool MoveGenerator::isInsideBoard(int x, int y) const {
     return (x >= 0 && x < 8 && y >= 0 && y < 8);
 }
 
-std::vector<Move> MoveGenerator::generateJumpMoves(
+void MoveGenerator::generateJumpMoves(
     const Position& position,
-    int from
+    int from,
+    std::vector<Move>& moves
 ) const {
     if (from < 0 || from >= 64) {
         throw std::invalid_argument("Invalid square index");
     }
-    std::vector<Move> moves;
     Piece myPiece = position.at(from);
     PieceType figureType = myPiece.type;
 
@@ -51,17 +51,16 @@ std::vector<Move> MoveGenerator::generateJumpMoves(
             }
         }
     }
-    return moves;
 }
 
-std::vector<Move> MoveGenerator::generateSlidingMoves(
+void MoveGenerator::generateSlidingMoves(
     const Position& position,
-    int from
+    int from,
+    std::vector<Move>& moves
 ) const {
     if (from < 0 || from >= 64) {
         throw std::invalid_argument("Invalid square index");
     }
-    std::vector<Move> moves;
     Piece myPiece = position.at(from);
     PieceType figureType = myPiece.type;
 
@@ -117,12 +116,12 @@ std::vector<Move> MoveGenerator::generateSlidingMoves(
             newY += stepY;
         }
     }
-    return moves;
 }
 
-std::vector<Move> MoveGenerator::generatePawnMoves(
+void MoveGenerator::generatePawnMoves(
     const Position& position,
-    int from
+    int from,
+    std::vector<Move>& moves
 ) const {
     if (from < 0 || from >= 64) {
         throw std::invalid_argument("Invalid square index");
@@ -133,14 +132,14 @@ std::vector<Move> MoveGenerator::generatePawnMoves(
         throw std::logic_error("generatePawnMoves called with non-pawn piece type");
     }
 
-    std::vector<Move> moves;
+
     const int x = from % 8;
     const int y = from / 8;
     const int direction = pawn.color == Color::White ? -1 : 1;
     const int nextY = y + direction;
 
     if (!isInsideBoard(x, nextY)) {
-        return moves;
+        return;
     }
 
     const int oneStepTo = nextY * 8 + x;
@@ -182,5 +181,4 @@ std::vector<Move> MoveGenerator::generatePawnMoves(
             }
         }
     }
-    return moves;
 }

@@ -6,7 +6,8 @@ bool MoveGenerator::canCastle(
     Color color,
     CastlingSide side
 ) const {
-    if (!position.castlingRight(color, side)) {
+    if (!position.castlingRight(color, side) ||
+        isKingInCheck(position, color)) {
         return false;
     }
     const int kingSquare = color == Color::White ? 60 : 4;
@@ -18,10 +19,6 @@ bool MoveGenerator::canCastle(
     const Piece rook = position.at(rookSquare);
     if (king.type != PieceType::King || king.color != color ||
         rook.type != PieceType::Rook || rook.color != color) {
-        return false;
-    }
-
-    if (isKingInCheck(position, color)) {
         return false;
     }
 
@@ -43,10 +40,11 @@ bool MoveGenerator::canCastle(
     return true;
 }
 
-std::vector<Move> MoveGenerator::generateCastlingMoves(
+void MoveGenerator::generateCastlingMoves(
     const Position& position,
     int from,
-    CastlingSide side
+    CastlingSide side,
+    std::vector<Move>& moves
 ) const {
     if (from < 0 || from >= 64) {
         throw std::invalid_argument("Invalid square index");
@@ -54,14 +52,14 @@ std::vector<Move> MoveGenerator::generateCastlingMoves(
 
     const Piece king = position.at(from);
     if (king.type != PieceType::King) {
-        return {};
+        return;
     }
 
     const int homeSquare = king.color == Color::White ? 60 : 4;
     if (from != homeSquare || !canCastle(position, king.color, side)) {
-        return {};
+        return;
     }
 
     const int to = side == CastlingSide::KingSide ? from + 2 : from - 2;
-    return {Move{from, to}};
+    moves.push_back(Move{from, to});
 }

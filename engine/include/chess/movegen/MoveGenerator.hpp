@@ -23,19 +23,22 @@ class MoveGenerator {
 
         bool isInsideBoard(int newX, int newY) const;
     
-        std::vector<Move> generateJumpMoves(
+        void generateJumpMoves(
             const Position& position,
-            int from
+            int from,
+            std::vector<Move>& moves
         ) const; 
     
-        std::vector<Move> generateSlidingMoves(
+        void generateSlidingMoves(
             const Position& position,
-            int from
+            int from,
+            std::vector<Move>& moves
         ) const; 
     
-        std::vector<Move> generatePawnMoves(
+        void generatePawnMoves(
             const Position& position,
-            int from
+            int from,
+            std::vector<Move>& moves
         ) const;
     
         bool canCastle(
@@ -43,19 +46,21 @@ class MoveGenerator {
             Color color, 
             CastlingSide side) const;
 
-        std::vector<Move> generateCastlingMoves(
+        void generateCastlingMoves(
             const Position& position,
             int from,
-            CastlingSide side
+            CastlingSide side,
+            std::vector<Move>& moves
         ) const;
             
         
         UndoInfo makeMove(Position& position, const Move& move) const; 
         void undoMove(Position& position, const UndoInfo& undoInfo) const;
     
-        std::vector<Move> generatePseudoLegalMoves(
+        void generatePseudoLegalMoves(
             const Position& position,
-            int from
+            int from,
+            std::vector<Move>& pseudoMoves
         ) const;
     public:
 

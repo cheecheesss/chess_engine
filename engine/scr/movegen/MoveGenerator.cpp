@@ -3,11 +3,12 @@
 
 /// @brief Генерирует псевдо-законные ходы для фигуры на указанной позиции
 /// @param position 
-/// @param from 
-/// @return 
-std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
+/// @param from
+/// @param moves
+void MoveGenerator::generatePseudoLegalMoves(
     const Position& position, // list 0-63 (squares of board)
-    int from // move from coord
+    int from, // move from coord
+    std::vector<Move>& moves
 ) const {
     if (from < 0 || from >= 64) {
         throw std::invalid_argument("Invalid square index");
@@ -15,32 +16,32 @@ std::vector<Move> MoveGenerator::generatePseudoLegalMoves(
 
     Piece piece = position.at(from);
     if (piece.isEmpty()) {
-        return {};
+        return;
     }
 
     switch (piece.type) {
         case PieceType::Pawn:
-            return generatePawnMoves(position, from);
+            generatePawnMoves(position, from, moves);
+            break;
 
         case PieceType::Knight:
-            return generateJumpMoves(position, from);
+            generateJumpMoves(position, from, moves);
+            break;
 
-        case PieceType::King: {
-            std::vector<Move> moves = generateJumpMoves(position, from);
-            for (CastlingSide side : {CastlingSide::KingSide, CastlingSide::QueenSide}) {
-                std::vector<Move> castlingMoves =
-                    generateCastlingMoves(position, from, side);
-                moves.insert(moves.end(), castlingMoves.begin(), castlingMoves.end());
-            }
-            return moves;
-        }
+        case PieceType::King:
+            generateJumpMoves(position, from, moves);
+            generateCastlingMoves(position, from, CastlingSide::KingSide, moves);
+            generateCastlingMoves(position, from, CastlingSide::QueenSide, moves);
+            break;
+        
 
         case PieceType::Bishop:
         case PieceType::Rook:
         case PieceType::Queen:
-            return generateSlidingMoves(position, from);
-        
-        default: return {};
+            generateSlidingMoves(position, from, moves);
+            break;
+
+        default: return;
     }   
 }
 

@@ -9,18 +9,8 @@ MoveGenerator::UndoInfo MoveGenerator::makeMove(
     Position& position,
     const Move& move
 ) const {
-    // Проверка индексов исходного и целевого полей.
-    if (move.from < 0 || move.from >= 64 ||
-        move.to < 0 || move.to >= 64 ||
-        move.from == move.to) {
-        throw std::invalid_argument("Invalid move squares");
-    }
-
     // Проверяем, что исходное поле занято фигурой.
     const Piece movedPiece = position.at(move.from);
-    if (movedPiece.isEmpty()) {
-        throw std::logic_error("Attempting to make a move from an empty square");
-    }
 
     // ========== ВЗЯТИЕ НА ПРОХОДЕ ==========
     // Не допускаем взятие своей фигуры.

@@ -6,36 +6,77 @@ bool MoveGenerator::isSquareAttacked( // надо жестко оптимизи�
     int square,
     Color attacker
 ) const {
-    // Проверяем, атакуется ли квадрат "square" фигурой цвета "attacker"
-    for (int from = 0; from < 64; ++from) {
-        Piece piece = position.at(from);
-        if (!piece.isEmpty() && piece.color == attacker) {
-            // сначала пешка
-            if (piece.type == PieceType::Pawn) {
-                const int direction = attacker == Color::White ? -1 : 1;
-                const int x = from % 8;
-                const int y = from / 8;
-            
-                for (int dx : {-1, 1}) {
-                    if (x + dx == square % 8 &&
-                        y + direction == square / 8) {
-                        return true;
-                    }
-                }   
+    if (square < 0 || square >= 64) {
+        return false;
+    }
+
+    constexpr int knightOffsets[8][2] = {
+        {-1, 2}, {1, 2}, {2, 1}, {-2, 1},
+        {-2, -1}, {2, -1}, {-1, -2}, {1, -2}
+    };
+    constexpr int directions[8][2] = {
+        {1, -1}, {1, 1}, {-1, -1}, {-1, 1},
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+    };
+
+    const int targetX = square % 8;
+    const int targetY = square / 8;
+
+    const int pawnSourceY = targetY + (attacker == Color::White ? 1 : -1);
+    if (pawnSourceY >= 0 && pawnSourceY < 8) {
+        for (int dx : {-1, 1}) {
+            const int sourceX = targetX + dx;
+            if (sourceX < 0 || sourceX >= 8) {
                 continue;
             }
-            // если не пешка то все остальное
-            std::vector<Move> moves = piece.type == PieceType::King
-                ? generateJumpMoves(position, from)
-                : generatePseudoLegalMoves(position, from);
-            for (const Move& move : moves) {
-                if (move.to == square) {
-                    return true; // Квадрат атакуется
-                }
+
+            const Piece piece = position.at(pawnSourceY * 8 + sourceX);
+            if (piece.type == PieceType::Pawn && piece.color == attacker) {
+                return true;
             }
         }
     }
-    return false; // Квадрат не атакуется
+
+    for (const auto& offset : knightOffsets) {
+        const int x = targetX + offset[0];
+        const int y = targetY + offset[1];
+        if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+            const Piece piece = position.at(y * 8 + x);
+            if (piece.type == PieceType::Knight && piece.color == attacker) {
+                return true;
+            }
+        }
+    }
+
+    for (const auto& direction : directions) {
+        const int stepX = direction[0];
+        const int stepY = direction[1];
+        int x = targetX + stepX;
+        int y = targetY + stepY;
+        int distance = 1;
+
+        while (x >= 0 && x < 8 && y >= 0 && y < 8) {
+            const Piece piece = position.at(y * 8 + x);
+            if (!piece.isEmpty()) {
+                if (piece.color == attacker) {
+                    const bool diagonal = stepX != 0 && stepY != 0;
+                    if (piece.type == PieceType::King && distance == 1) {
+                        return true;
+                    }
+                    if (piece.type == PieceType::Queen ||
+                        (diagonal && piece.type == PieceType::Bishop) ||
+                        (!diagonal && piece.type == PieceType::Rook)) {
+                        return true;
+                    }
+                }
+                break;
+            }
+            x += stepX;
+            y += stepY;
+            ++distance;
+        }
+    }
+    return false;
 }
 /// @brief Проверяет, находится ли король под шахом
 /// @param position 
