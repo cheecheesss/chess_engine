@@ -1,11 +1,10 @@
-#include <stdexcept>
 #include "movegen/MoveGenerator.hpp"
 
-std::vector<Move> MoveGenerator::generateLegalMovesForSide(
+MoveList MoveGenerator::generateLegalMovesForSide(
     const Position& position,
     Color sideToMove
 ) const {
-    std::vector<Move> legalMoves;
+    MoveList legalMoves;
     // ========= НАХОЖДЕНИЕ КОРОЛЯ ==========
     int kingSquare = -1;
     for (int square = 0; square < 64; ++square) {
@@ -23,8 +22,7 @@ std::vector<Move> MoveGenerator::generateLegalMovesForSide(
     
     // ========= ГЕНЕРАЦИЯ ХОДОВ ==========
     Position tempPosition = position;
-    std::vector<Move> pseudoMoves;
-    pseudoMoves.reserve(32);
+    MoveList pseudoMoves;
     for (int square = 0; square < 64; ++square) {
         Piece piece = position.at(square);
         if (piece.isEmpty() || piece.color != sideToMove) {

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <cstdint>
-
 #include "core/Position.hpp"
 #include "core/Move.hpp"
 
@@ -26,19 +23,19 @@ class MoveGenerator {
         void generateJumpMoves(
             const Position& position,
             int from,
-            std::vector<Move>& moves
+            MoveList& moves
         ) const; 
     
         void generateSlidingMoves(
             const Position& position,
             int from,
-            std::vector<Move>& moves
+            MoveList& moves
         ) const; 
     
         void generatePawnMoves(
             const Position& position,
             int from,
-            std::vector<Move>& moves
+            MoveList& moves
         ) const;
     
         bool canCastle(
@@ -50,7 +47,7 @@ class MoveGenerator {
             const Position& position,
             int from,
             CastlingSide side,
-            std::vector<Move>& moves
+            MoveList& moves
         ) const;
             
         
@@ -60,11 +57,11 @@ class MoveGenerator {
         void generatePseudoLegalMoves(
             const Position& position,
             int from,
-            std::vector<Move>& pseudoMoves
+            MoveList& pseudoMoves
         ) const;
     public:
 
-        std::vector<Move> generateLegalMovesForSide(
+        MoveList generateLegalMovesForSide(
             const Position& position,
             Color sideToMove
         ) const;

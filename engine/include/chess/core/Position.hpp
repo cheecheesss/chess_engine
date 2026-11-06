@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <stdexcept>
 #include "Types.hpp"
 
 struct CastlingRights {
@@ -11,9 +12,21 @@ struct CastlingRights {
 };
 class Position {
 public:
-    Position() = default; // because we create board on private 
-    Piece at(int square) const;
-    void setPiece(int square, Piece piece);
+    Position() = default;
+
+    Piece at(int square) const {
+        if (square < 0 || square >= 64) {
+            throw std::out_of_range("Invalid square");
+        }
+        return board_[static_cast<std::size_t>(square)];
+    }
+
+    void setPiece(int square, Piece piece) {
+        if (square < 0 || square >= 64) {
+            throw std::out_of_range("Invalid square");
+        }
+        board_[static_cast<std::size_t>(square)] = piece;
+    }
 
     int enPassantTarget() const;
     void setEnPassantTarget(int square);

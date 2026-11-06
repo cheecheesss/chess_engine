@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include "movegen/MoveGenerator.hpp"
 
 /// @brief Применяет ход и возвращает данные для его отмены.

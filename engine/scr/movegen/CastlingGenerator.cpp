@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include "movegen/MoveGenerator.hpp"
 
 bool MoveGenerator::canCastle(
@@ -6,8 +5,7 @@ bool MoveGenerator::canCastle(
     Color color,
     CastlingSide side
 ) const {
-    if (!position.castlingRight(color, side) ||
-        isKingInCheck(position, color)) {
+    if (!position.castlingRight(color, side)) {
         return false;
     }
     const int kingSquare = color == Color::White ? 60 : 4;
@@ -36,7 +34,6 @@ bool MoveGenerator::canCastle(
         !position.at(kingSquare - 3).isEmpty()) {
         return false;
     }
-
     return true;
 }
 
@@ -44,7 +41,7 @@ void MoveGenerator::generateCastlingMoves(
     const Position& position,
     int from,
     CastlingSide side,
-    std::vector<Move>& moves
+    MoveList& moves
 ) const {
     if (from < 0 || from >= 64) {
         throw std::invalid_argument("Invalid square index");

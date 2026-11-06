@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include "movegen/MoveGenerator.hpp"
 
 bool MoveGenerator::isInsideBoard(int x, int y) const {
@@ -8,7 +7,7 @@ bool MoveGenerator::isInsideBoard(int x, int y) const {
 void MoveGenerator::generateJumpMoves(
     const Position& position,
     int from,
-    std::vector<Move>& moves
+    MoveList& moves
 ) const {
     if (from < 0 || from >= 64) {
         throw std::invalid_argument("Invalid square index");
@@ -56,7 +55,7 @@ void MoveGenerator::generateJumpMoves(
 void MoveGenerator::generateSlidingMoves(
     const Position& position,
     int from,
-    std::vector<Move>& moves
+    MoveList& moves
 ) const {
     if (from < 0 || from >= 64) {
         throw std::invalid_argument("Invalid square index");
@@ -121,7 +120,7 @@ void MoveGenerator::generateSlidingMoves(
 void MoveGenerator::generatePawnMoves(
     const Position& position,
     int from,
-    std::vector<Move>& moves
+    MoveList& moves
 ) const {
     if (from < 0 || from >= 64) {
         throw std::invalid_argument("Invalid square index");

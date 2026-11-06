@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
-#include <vector>
 
 #include "movegen/MoveGenerator.hpp"
 
@@ -92,7 +91,7 @@ BenchmarkPosition makeEndgamePosition() {
 	return {"rook endgame", position, Color::Black};
 }
 
-std::uint64_t hashMoves(const std::vector<Move>& moves) {
+std::uint64_t hashMoves(const MoveList& moves) {
 	std::uint64_t hash = 14695981039346656037ULL;
 	for (const Move& move : moves) {
 		hash ^= static_cast<std::uint64_t>(move.from + 1);
@@ -117,7 +116,7 @@ Sample runSample(
 
 	do {
 		for (std::uint64_t batchCall = 0; batchCall < batchSize; ++batchCall) {
-			const std::vector<Move> moves = generator.generateLegalMovesForSide(
+			const MoveList moves = generator.generateLegalMovesForSide(
 				benchmarkPosition.position,
 				benchmarkPosition.sideToMove
 			);
@@ -131,7 +130,7 @@ Sample runSample(
 	return {
 		static_cast<double>(calls) / elapsed,
 		static_cast<double>(totalMoves) / elapsed,
-		calls == 0 ? 0.0 : static_cast<double>(totalMoves) / calls,
+		static_cast<double>(totalMoves) / static_cast<double>(calls),
 		calls,
 		checksum
 	};
@@ -171,7 +170,7 @@ int main(int argc, char** argv) {
 	};
 	const MoveGenerator generator;
 
-	const std::vector<Move> startMoves = generator.generateLegalMovesForSide(
+	const MoveList startMoves = generator.generateLegalMovesForSide(
 		positions[0].position,
 		positions[0].sideToMove
 	);

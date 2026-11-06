@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include "movegen/MoveGenerator.hpp"
 
 bool MoveGenerator::isSquareAttacked( // надо жестко оптимизировать
