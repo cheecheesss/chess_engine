@@ -23,6 +23,7 @@ enum class CastlingSide : uint8_t {
     QueenSide
 };
 
+/// @brief содержит тип и цвет фигуры
 struct Piece {
     PieceType type{PieceType::None};
     Color color{Color::White};

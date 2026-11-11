@@ -136,6 +136,19 @@ void MoveGenerator::generatePawnMoves(
     const int y = from / 8;
     const int direction = pawn.color == Color::White ? -1 : 1;
     const int nextY = y + direction;
+    const int promotionRank = pawn.color == Color::White ? 0 : 7;
+
+    // лямбда фунция для добавления Ёходов пешки
+    const auto addPawnMove = [&](int to) {
+        if (to / 8 == promotionRank) {
+            moves.push_back(Move{from, to, PieceType::Bishop});
+            moves.push_back(Move{from, to, PieceType::Knight});
+            moves.push_back(Move{from, to, PieceType::Queen});
+            moves.push_back(Move{from, to, PieceType::Rook});
+        } else {
+            moves.push_back(Move{from, to});
+        }
+    };
 
     if (!isInsideBoard(x, nextY)) {
         return;
@@ -143,7 +156,7 @@ void MoveGenerator::generatePawnMoves(
 
     const int oneStepTo = nextY * 8 + x;
     if (position.at(oneStepTo).isEmpty()) {
-        moves.push_back(Move{from, oneStepTo});
+        addPawnMove(oneStepTo);
 
         const bool isStartingRank =
             (pawn.color == Color::White && y == 6) ||
@@ -166,7 +179,7 @@ void MoveGenerator::generatePawnMoves(
         const int captureTo = nextY * 8 + captureX;
         const Piece target = position.at(captureTo);
         if (!target.isEmpty() && target.color != pawn.color) {
-            moves.push_back(Move{from, captureTo});
+            addPawnMove(captureTo);
         }
         else if (target.isEmpty() && captureTo == position.enPassantTarget()) {
             const int expectedTargetY = pawn.color == Color::White ? 2 : 5;

@@ -33,6 +33,11 @@ MoveList MoveGenerator::generateLegalMovesForSide(
         
         // проверяем каждый ход на предмет того, не оставляет ли он короля под шахом    
         for (const Move& move : pseudoMoves) {
+            // проверка на то чтобы нельзя было взять короля
+            // если его каким то образом получится взять, то движок ляжет
+            if (position.at(move.to).type == PieceType::King) {
+                continue;
+            }
             UndoInfo undoInfo = makeMove(tempPosition, move);
             
             const int kingSquareAfterMove =

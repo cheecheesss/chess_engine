@@ -5,21 +5,33 @@
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
+#include "Types.hpp"
 
+
+/// @brief движение от клетки в клетку. 
+/// номера клеток должны быть в диапазоне от 0 до 64
 struct Move {
     std::uint8_t from;
     std::uint8_t to;
+    PieceType promotion{PieceType::None};
+    constexpr Move() noexcept 
+        : from(0), to(0), promotion(PieceType::None) {}
 
-    constexpr Move() noexcept : from(0), to(0) {}
-
-    constexpr Move(int fromSquare, int toSquare) noexcept
+    constexpr Move(
+        int fromSquare,
+        int toSquare,
+        PieceType promotionType = PieceType::None
+    ) noexcept
         : from(static_cast<std::uint8_t>(fromSquare)),
-                    to(static_cast<std::uint8_t>(toSquare)) {
-                assert(fromSquare >= 0 && fromSquare < 64);
-                assert(toSquare >= 0 && toSquare < 64);
-        }
+          to(static_cast<std::uint8_t>(toSquare)),
+          promotion(promotionType) {
+        assert(fromSquare >= 0 && fromSquare < 64);
+        assert(toSquare >= 0 && toSquare < 64);
+    }
 };
 
+/// @brief свой класс заменяющий std::array в целях
+/// оптимизации. Имеет выделенную память - 256 и ограниченный функционал.
 class MoveList {
 public:
     static constexpr std::size_t Capacity = 256;

@@ -10,6 +10,23 @@ MoveGenerator::UndoInfo MoveGenerator::makeMove(
 ) const {
     // Проверяем, что исходное поле занято фигурой.
     const Piece movedPiece = position.at(move.from);
+    
+    // ========== ПРЕВРАЩЕНИЕ ==========
+    Piece pieceToPlace = movedPiece;
+    const int promotionRank = movedPiece.color == Color::White ? 0 : 7; 
+    
+    if (movedPiece.type == PieceType::Pawn &&
+        move.to / 8 == promotionRank) {
+        if (move.promotion != PieceType::Queen &&
+            move.promotion != PieceType::Rook &&    
+            move.promotion != PieceType::Bishop &&  
+            move.promotion != PieceType::Knight) {
+                throw std::invalid_argument("invalid pawn promotion");
+        } 
+        pieceToPlace.type = move.promotion;
+    } else if (move.promotion != PieceType::None) {
+        throw std::invalid_argument("Promotion on non-promotion move");
+    }
 
     // ========== ВЗЯТИЕ НА ПРОХОДЕ ==========
     // Не допускаем взятие своей фигуры.
@@ -121,7 +138,7 @@ MoveGenerator::UndoInfo MoveGenerator::makeMove(
             position.setCastlingRight(movedPiece.color, CastlingSide::QueenSide, false);
         }
     }
-
+    
     // ========== ОБНОВЛЕНИЕ ПОЗИЦИИ ==========
     position.setPiece(move.from, Piece{});
     if (capturedSquare != -1) {
@@ -132,7 +149,8 @@ MoveGenerator::UndoInfo MoveGenerator::makeMove(
         position.setPiece(rookFrom, Piece{});
         position.setPiece(rookTo, rook);
     }
-    position.setPiece(move.to, movedPiece);
+
+    position.setPiece(move.to, pieceToPlace);
     position.setEnPassantTarget(newEnPassantTarget);
 
     return UndoInfo{
