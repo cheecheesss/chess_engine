@@ -2,9 +2,10 @@
 import pygame
 
 class InputHandler:
-	def __init__(self, board_view, board):
+	def __init__(self, board_view, board, on_move = None):
 		self.board_view = board_view
 		self.board = board
+		self.on_move = on_move
 		self.selected_index = None
 		self.selected_piece = None
 
@@ -19,16 +20,17 @@ class InputHandler:
 				self.selected_piece = self.board[index]
 
 		elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-		# id releasing mouse btn:
 			if self.selected_index is None:
-			# if cursor dint have piece break func
 				return
 
 			destination = self.board_view.cell_at(event.pos)
-			if destination is not None:
-			# write piece to new cell and delete from old cell
-				self.board[self.selected_index] = None
-				self.board[destination] = self.selected_piece
+			if destination is not None and destination != self.selected_index:
+				if self.on_move is not None:
+					self.on_move(self.selected_index, destination)
+				else:
+					self.board[self.selected_index] = None
+					self.board[destination] = self.selected_piece
+
 			self.selected_index = None
 			self.selected_piece = None
 

@@ -76,6 +76,13 @@ class MoveGenerator {
             Color sideToMove
         ) const;
 
+        /// @brief применяет ход из уже полученного списка
+        bool applyLegalMove(
+            Position& Position,
+            const MoveList& legalMoves,
+            const Move& requstedMove
+        ) const;
+
         /// @brief проверка атакованна ли клетка
         bool isSquareAttacked(
             const Position& position,

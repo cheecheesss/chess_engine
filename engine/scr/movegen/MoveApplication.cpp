@@ -1,5 +1,21 @@
 #include "movegen/MoveGenerator.hpp"
 
+bool MoveGenerator::applyLegalMove(
+    Position& position,
+    const MoveList& legalMoves,
+    const Move& requstedMove
+) const {
+    for (const Move& legalMove : legalMoves) {
+        if (legalMove.from == requstedMove.from &&
+            legalMove.to == requstedMove.to &&
+            legalMove.promotion == requstedMove.promotion) {
+            makeMove(position, legalMove);
+            return true;
+        }
+    }
+    return false;
+}
+
 /// @brief Применяет ход и возвращает данные для его отмены.
 /// @param position Позиция, которую нужно изменить.
 /// @param move Ход, который нужно применить.
